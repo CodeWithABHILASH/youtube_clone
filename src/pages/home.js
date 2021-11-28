@@ -1,0 +1,47 @@
+import CustomAppBar from "../components/CustomAppBar";
+import { useState, useEffect } from "react";
+import CustomCard from "../components/CustomCard";
+import { Row,Spinner } from "react-bootstrap";
+
+const Home = () => {
+    const [videos, setVideos] = useState([]);
+    const [searchText, setSearchText] = useState("");
+    useEffect(() => {
+        async function getVideos() {
+          const response = await fetch(`${process.env.REACT_APP_API_URL}/videos`, {
+            method: "GET",
+          });
+          const data = await response.json();
+          setVideos(data);
+        }
+        getVideos();
+      }, [])
+    return ( 
+        <div>
+            <CustomAppBar isSearchVisible={true}   onSearch={(event) => { setSearchText(event.target.value); }} />
+            {
+                videos.length===0? (
+                    <div style={{display:'flex', position:'absolute',top:'50%',left:'50%'}}>
+                    <Spinner animation="grow" variant="light" className="my-auto mx-auto" />
+                    </div>
+                  )  : (
+                    <Row xs={1} md={4} className="g-4">
+                        {
+                videos.filter((e) =>
+                searchText.length === 0
+                  ? true
+                  : e.title.toLowerCase().includes(searchText.toLowerCase())
+                  ).map(e=> (
+                    <CustomCard key={videos.indexOf(e)} title={e.title}  uploadedAgo={e.uploadedAgo} uploadedBy={e.uploadedBy}   image={e.image}  views={e.views} />
+                   
+               ) )
+            }
+              </Row>
+               )}
+            
+        </div>
+       
+     );
+}
+ 
+export default Home;
